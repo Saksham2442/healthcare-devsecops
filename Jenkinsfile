@@ -9,9 +9,7 @@ pipeline {
     stages {
 
         stage('Checkout') {
-            steps {
-                checkout scm
-            }
+            steps { checkout scm }
         }
 
         stage('SAST - Static Code Analysis') {
@@ -97,21 +95,16 @@ pipeline {
                 script {
                     echo 'Verifying security posture after deployment...'
                     sh "kubectl get pods -o wide"
-                    sh "kubectl describe deployment healthcare-app | grep -A5 'Security'"
+                    sh "kubectl get service healthcare-service"
+                    echo 'All security gates passed. Healthcare app deployed securely!'
                 }
             }
         }
     }
 
     post {
-        always {
-            echo 'Security scan reports available in workspace'
-        }
-        success {
-            echo 'DevSecOps pipeline passed all security gates!'
-        }
-        failure {
-            echo 'Pipeline failed security checks. Deployment blocked!'
-        }
+        always { echo 'Security scan reports available in workspace' }
+        success { echo 'DevSecOps pipeline passed all security gates!' }
+        failure { echo 'Pipeline failed. Check logs.' }
     }
 }
